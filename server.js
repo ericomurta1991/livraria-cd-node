@@ -7,5 +7,5 @@ const server = http.createServer((req, res) =>{
 })
 
 server.listen(port, () => {
-    console.log(`Servidor escutando em http:://localhost:${port}`)
+    console.log(`Servidor escutando em http://localhost:${port}`)
 })
