@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import autores from "../models/Autor.js";
 
 class AutorController {
@@ -12,7 +11,7 @@ class AutorController {
     }
   };
 
-  static listarAutorPorId = async(req, res) => {
+  static listarAutorPorId = async(req, res, next) => {
         
     try{
       const {id}  = req.params;
@@ -25,46 +24,42 @@ class AutorController {
         res.status(404).send({message: "id do Autor nao localizado"});
       }
     } catch (err){
-      if (err instanceof mongoose.Error.CastError){
-        res.status(400).send({message: "Um ou mais dados fornecidos estao incorretos."});
-      }else {
-        res.status(500).send({message: "Erro interno do servidor."});
-      }
-        
+      next(err);
+
     }
   };
 
-  static cadastrarAutor = async (req, res) => {
+  static cadastrarAutor = async (req, res, next) => {
     try{
       let autor = new autores(req.body);
       await autor.save(); 
       res.status(201).send(autor.toJSON());
-    } catch(err) {
-      res.status(501).send({message: `${err.message} - erro ao cadastrar Autor`});
+    } catch(erro) {
+      next(erro);
     }
 
             
   };
 
-  static atualizarAutor = async (req, res) => {
+  static atualizarAutor = async (req, res, next) => {
     try{
       const {id} = req.params;
       const newBook = await autores.findByIdAndUpdate(id, req.body,{
         new: true
       });
       res.status(200).json(newBook);
-    }catch(err){
-      res.status(500).json({ err: err.message });   
+    }catch(erro){
+      next(erro);   
     }
   };
 
-  static excluirAutor = async (req, res) => {
+  static excluirAutor = async (req, res, next) => {
     try{
       const {id} = req.params;
       await autores.findByIdAndDelete(id);
       res.status(200).send({message: "Autor removido com sucesso"});
-    }catch (err){ 
-      res.status(500).send({message: err.message});
+    }catch (erro){ 
+      next(erro);
     }
         
   };
