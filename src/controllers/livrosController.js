@@ -74,7 +74,7 @@ class LivroController {
 
   static listarLivroPorFiltro = async(req, res, next) => {
     try{
-      const {editora, titulo } = req.query;
+      const {editora, titulo, minPaginas, maxPaginas} = req.query;
 
       //usando metodo do proprio javascript, regex;
       const regex = new RegExp(titulo, "i");
@@ -83,6 +83,13 @@ class LivroController {
       //usando o metodo do mongoose para regex
       if(editora) busca.editora = {$regex: editora, $options: "i"};
       if(titulo) busca.titulo = regex;
+
+      if(minPaginas || maxPaginas) busca.numeroDePaginas = {};
+
+      //gte = Greather Than or Equal  = Maior ou igual que
+      if(minPaginas) busca.numeroDePaginas.$gte = minPaginas;
+      //lte = Less than or Equal = Menor ou igual que
+      if(maxPaginas) busca.numeroDePaginas.$lte = maxPaginas;
 
       const livrosResultado = await livros.find(busca);
 
