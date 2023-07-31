@@ -1,5 +1,5 @@
 import NaoEncontrado from "../errors/NaoEncontrado.js";
-import { livros } from "../models/index.js";
+import { autores, livros } from "../models/index.js";
 
 class LivroController {
 
@@ -74,12 +74,13 @@ class LivroController {
 
   static listarLivroPorFiltro = async(req, res, next) => {
     try{
-      const {editora, titulo, minPaginas, maxPaginas} = req.query;
+      const {editora, titulo, minPaginas, maxPaginas, nomeAutor} = req.query;
 
+      
       //usando metodo do proprio javascript, regex;
       const regex = new RegExp(titulo, "i");
       
-      const busca = {};
+      let busca = {};
       //usando o metodo do mongoose para regex
       if(editora) busca.editora = {$regex: editora, $options: "i"};
       if(titulo) busca.titulo = regex;
@@ -90,14 +91,28 @@ class LivroController {
       if(minPaginas) busca.numeroDePaginas.$gte = minPaginas;
       //lte = Less than or Equal = Menor ou igual que
       if(maxPaginas) busca.numeroDePaginas.$lte = maxPaginas;
-
-      const livrosResultado = await livros.find(busca);
-
-      res.status(200).send(livrosResultado);
+      if(nomeAutor){
+        const autor = await autores.findOne({nome: nomeAutor});
+        
+        if (autor !== null){
+          busca.autor = autor._id;
+        }else{
+          busca = null;
+        }
+      }
+      if(busca !== null){
+        const livrosResultado = await livros.find(busca)
+          .find(busca)
+          .populate("autor", "nome");
+        res.status(200).send(livrosResultado);
+      }else{
+        res.status(200).send([]);
+      }
     } catch(erro){
       next(erro);
     }
   };
 }
+
 
 export default LivroController;
