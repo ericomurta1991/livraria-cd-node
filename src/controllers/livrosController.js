@@ -104,10 +104,13 @@ class LivroController {
         }
       }
       if(busca !== null){
-        const livrosResultado = await livros.find(busca)
+        const livrosResultado = livros.find(busca)
           .find(busca)
           .populate("autor", "nome");
-        res.status(200).send(livrosResultado);
+
+        req.resultado =  livrosResultado;
+        
+        next();
       }else{
         res.status(200).send([]);
       }
