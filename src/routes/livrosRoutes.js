@@ -1,10 +1,11 @@
 import  express  from "express";
 import LivroController from "../controllers/livrosController.js";
+import paginar from "../middlewares/paginar.js";
 
 const router = express.Router();
 
 router
-  .get("/livros", LivroController.listarLivros)
+  .get("/livros", LivroController.listarLivros, paginar)
   .get("/livros/busca", LivroController.listarLivroPorFiltro)
   .get("/livros/:id", LivroController.listarLivroPorId)
   .post("/livros", LivroController.cadastrarLivros)
